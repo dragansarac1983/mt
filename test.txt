@@ -1,1 +1,1 @@
-interface print
+system reset-configuration no-defaults=yes
