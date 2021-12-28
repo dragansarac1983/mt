@@ -1,1 +1,55 @@
-system reset-configuration no-defaults=yes
+/interface bridge
+add name=bridgeTEL
+/interface ethernet
+set [ find default-name=ether2 ] comment="SW recepcija"
+set [ find default-name=ether3 ] comment="IP centrala"
+/interface eoip
+add mac-address=02:1B:97:23:B6:2E name=eoip-tunnel1 remote-address=172.31.31.254 tunnel-id=66
+/interface ovpn-client
+add certificate=cert_export_NF-TELclient-certificate.crt_0 cipher=aes256 connect-to=31.223.209.58 mac-address=02:A8:E4:F9:24:A1 name=ovpn-out1 password=support057222777 user=\
+    forest
+/interface wireless security-profiles
+set [ find default=yes ] supplicant-identity=MikroTik
+/ip hotspot profile
+set [ find default=yes ] html-directory=flash/hotspot
+/ip pool
+add name=poolTEL ranges=192.168.78.50-192.168.78.100
+/ip dhcp-server
+add address-pool=poolTEL disabled=no interface=bridgeTEL lease-time=3m name=TEL_DHCP
+/interface bridge port
+add bridge=bridgeTEL interface=ether2
+add bridge=bridgeTEL interface=ether3
+add bridge=bridgeTEL interface=ether4
+add bridge=bridgeTEL interface=ether5
+add bridge=bridgeTEL interface=eoip-tunnel1
+/ip neighbor discovery-settings
+set discover-interface-list=!dynamic
+/ip address
+add address=192.168.78.254/24 interface=bridgeTEL network=192.168.78.0
+add address=192.168.33.1/24 interface=ether1 network=192.168.33.0
+/ip dhcp-server lease
+add address=192.168.78.96 client-id=1:c0:74:ad:3e:c:90 comment="TEL Recepcija" mac-address=C0:74:AD:3E:0C:90 server=TEL_DHCP
+add address=192.168.78.95 client-id=1:c0:74:ad:4b:ef:df comment="Soba 101" mac-address=C0:74:AD:4B:EF:DF server=TEL_DHCP
+add address=192.168.78.93 client-id=1:c0:74:ad:4b:ef:d1 comment="Soba 102" mac-address=C0:74:AD:4B:EF:D1 server=TEL_DHCP
+add address=192.168.78.92 client-id=1:c0:74:ad:4b:ef:e0 comment="Soba 103" mac-address=C0:74:AD:4B:EF:E0 server=TEL_DHCP
+add address=192.168.78.91 client-id=1:c0:74:ad:4b:ef:db comment="Soba 106" mac-address=C0:74:AD:4B:EF:DB server=TEL_DHCP
+add address=192.168.78.90 client-id=1:c0:74:ad:4b:ef:dc comment="Soba 107" mac-address=C0:74:AD:4B:EF:DC server=TEL_DHCP
+add address=192.168.78.89 client-id=1:c0:74:ad:4b:ef:d2 comment="Soba 108" mac-address=C0:74:AD:4B:EF:D2 server=TEL_DHCP
+add address=192.168.78.88 client-id=1:c0:74:ad:4b:ef:d8 comment="Soba 105" mac-address=C0:74:AD:4B:EF:D8 server=TEL_DHCP
+add address=192.168.78.87 client-id=1:c0:74:ad:4b:ef:1 comment="Soba 109" mac-address=C0:74:AD:4B:EF:01 server=TEL_DHCP
+add address=192.168.78.86 client-id=1:c0:74:ad:4b:ef:5 comment="Soba 111" mac-address=C0:74:AD:4B:EF:05 server=TEL_DHCP
+add address=192.168.78.85 client-id=1:c0:74:ad:4b:ee:fe comment="Soba 110" mac-address=C0:74:AD:4B:EE:FE server=TEL_DHCP
+add address=192.168.78.84 client-id=1:c0:74:ad:4b:ee:fd comment="Soba 112" mac-address=C0:74:AD:4B:EE:FD server=TEL_DHCP
+add address=192.168.78.83 client-id=1:c0:74:ad:4b:ef:4 comment="Soba 113" mac-address=C0:74:AD:4B:EF:04 server=TEL_DHCP
+add address=192.168.78.82 client-id=1:c0:74:ad:4b:ef:dd comment="Soba 104" mac-address=C0:74:AD:4B:EF:DD server=TEL_DHCP
+add address=192.168.78.1 comment="IP CENTRALA (4e+e\?pi1E5l\?)" mac-address=00:00:00:00:00:01
+/ip dhcp-server network
+add address=192.168.78.0/24 dns-server=8.8.8.8 gateway=192.168.78.254 netmask=24
+/ip firewall address-list
+add address=10.0.0.0/24 list=ACCEPT-WINBOX
+/ip firewall filter
+add action=accept chain=input comment=ACCEPT-WINBOX dst-port=8291 protocol=tcp src-address-list=ACCEPT-WINBOX
+add action=drop chain=input comment=ACCEPT-DROP dst-port=8291 protocol=tcp
+/ip firewall nat
+add action=masquerade chain=srcnat
+
